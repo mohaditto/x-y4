@@ -1,0 +1,119 @@
+/* --- TRANSFORMACIÓN MÁGICA DE BOTONES JS --- */
+
+/* 1. El contenedor de los botones (la celda de acciones) */
+#tbl-usuarios td:last-child {
+  display: flex;
+  gap: 8px;             /* Espacio entre botones */
+  justify-content: center; /* Centrados */
+  align-items: center;
+}
+
+/* 2. Estilo base para TODOS los botones generados por JS en esa columna */
+#tbl-usuarios td:last-child button {
+  width: 36px;              /* Hacemos que sean cuadrados */
+  height: 36px;
+  padding: 0 !important;    /* Quitamos el relleno para que no se deformen */
+  border-radius: 8px;       /* Bordes suaves */
+  border: none;
+  
+  /* AQUÍ ESTÁ EL TRUCO: */
+  font-size: 0 !important;  /* Ocultamos el texto "Editar", "Eliminar", etc. */
+  
+  cursor: pointer;
+  position: relative;       /* Necesario para poner el ícono encima */
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+    --bs-badge-color: #000 !important;   /* texto negro */
+    color: #000 !important;
+}
+
+
+/* Efecto al pasar el mouse (se levantan un poco) */
+#tbl-usuarios td:last-child button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* --- ASIGNAMOS ÍCONOS SEGÚN EL ORDEN (1, 2, 3, 4) --- */
+/* Como el JS siempre los imprime en el mismo orden, aprovechamos eso */
+
+/* 1. PRIMER BOTÓN: EDITAR (Lo convertimos en Lápiz Azul) */
+#tbl-usuarios td:last-child button:nth-child(1) {
+  background-color: #e0f2fe; /* Fondo Azul Suave */
+  color: #0284c7;            /* Icono Azul */
+}
+#tbl-usuarios td:last-child button:nth-child(1)::before {
+  content: "\f044";          /* Icono FontAwesome: Pen */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 16px;           /* Tamaño del ícono visible */
+}
+
+/* 2. SEGUNDO BOTÓN: CLAVE (Lo convertimos en Llave Amarilla) */
+#tbl-usuarios td:last-child button:nth-child(2) {
+  background-color: #fef3c7; /* Fondo Amarillo Suave */
+  color: #d97706;            /* Icono Naranja */
+}
+#tbl-usuarios td:last-child button:nth-child(2)::before {
+  content: "\f084";          /* Icono FontAwesome: Key */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* 3. TERCER BOTÓN: DESACTIVAR (Lo convertimos en Bloqueo Gris/Rojo) */
+#tbl-usuarios td:last-child button:nth-child(3) {
+  background-color: #f3f4f6; /* Fondo Gris */
+  color: #4b5563;            /* Icono Gris Oscuro */
+}
+#tbl-usuarios td:last-child button:nth-child(3)::before {
+  content: "\f05e";          /* Icono FontAwesome: Ban (Prohibido) */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* 4. CUARTO BOTÓN: ELIMINAR (Lo convertimos en Basurero Rojo) */
+#tbl-usuarios td:last-child button:nth-child(4) {
+  background-color: #fee2e2; /* Fondo Rojo Suave */
+  color: #dc2626;            /* Icono Rojo */
+}
+#tbl-usuarios td:last-child button:nth-child(4)::before {
+  content: "\f1f8";          /* Icono FontAwesome: Trash */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 16px;
+}
+
+/* --- OPCIONAL: TOOLTIP AL PASAR EL MOUSE --- */
+/* Para que el usuario sepa qué hace el botón aunque no tenga texto */
+#tbl-usuarios td:last-child button:hover::after {
+  position: absolute;
+  bottom: 115%; /* Aparece arriba del botón */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  animation: fadeInTooltip 0.2s forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Texto del Tooltip según el botón */
+#tbl-usuarios td:last-child button:nth-child(1):hover::after { content: "Editar Usuario"; }
+#tbl-usuarios td:last-child button:nth-child(2):hover::after { content: "Cambiar Clave"; }
+#tbl-usuarios td:last-child button:nth-child(3):hover::after { content: "Activar/Desactivar"; }
+#tbl-usuarios td:last-child button:nth-child(4):hover::after { content: "Eliminar"; }
+
+@keyframes fadeInTooltip { to { opacity: 1; } }

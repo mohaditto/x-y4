@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso - X&Y</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      /* Paleta de colores basada en modo oscuro profesional */
+      --bg-dark: #111827;      /* Fondo muy oscuro (casi negro) */
+      --bg-card: #1f2937;      /* Gris oscuro para inputs */
+      --text-main: #f3f4f6;    /* Texto blanco */
+      --text-muted: #9ca3af;   /* Texto gris */
+      --primary: #3b82f6;      /* Azul vibrante */
+      --primary-hover: #2563eb;
+      --border: #374151;       /* Bordes sutiles */
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      overflow: hidden; /* Evita scrollbars */
+    }
+
+    /* --- SECCIÓN IZQUIERDA (FORMULARIO) --- */
+    .login-section {
+      width: 40%;
+      background-color: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      position: relative;
+      color: var(--text-main);
+    }
+
+    .login-wrapper {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .brand {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    
+    .brand h1 { font-size: 2rem; font-weight: 700; letter-spacing: -1px; margin-bottom: 5px; }
+    .brand span { color: var(--primary); }
+    .brand p { color: var(--text-muted); font-size: 0.95rem; }
+
+    /* Inputs Estilo Rancher/Moderno */
+    .form-group { margin-bottom: 20px; }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      background-color: var(--bg-card); /* Fondo oscuro input */
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      background-color: #1a2230;
+    }
+
+    /* Botón */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+
+    /* Mensajes de alerta */
+    #loginMsg {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+    }
+    .error { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #7f1d1d; }
+    .success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid #064e3b; }
+
+    /* Copyright footer */
+    .footer-copy {
+      position: absolute;
+      bottom: 20px;
+      color: #4b5563;
+      font-size: 0.8rem;
+    }
+
+    /* --- SECCIÓN DERECHA (IMAGEN) --- */
+    .image-section {
+      width: 60%;
+      position: relative;
+      background-color: #1e293b;
+      /* IMAGEN DE FONDO: He puesto una de construcción/arquitectura moderna */
+      background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Overlay azulado para que se vea profesional y legible */
+    .image-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(37, 99, 235, 0.4));
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 60px;
+      color: white;
+    }
+
+    .overlay-content { max-width: 600px; animation: fadeInUp 1s ease-out; }
+    .overlay-content h2 { font-size: 3rem; font-weight: 700; margin-bottom: 15px; line-height: 1.1; }
+    .overlay-content p { font-size: 1.2rem; opacity: 0.9; font-weight: 300; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive para móviles */
+    @media (max-width: 900px) {
+      body { flex-direction: column; overflow-y: auto; }
+      .login-section { width: 100%; min-height: 100vh; padding: 30px; }
+      .image-section { display: none; } /* Ocultamos la imagen en móviles para priorizar login */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-section">
+    <div class="login-wrapper">
+      <div class="brand">
+        <i class="fa-solid fa-layer-group fa-3x" style="color:var(--primary); margin-bottom: 20px;"></i>
+        <h1>Bienvenido a X<span>&</span>Y</h1>
+        <p>Ingresa tus credenciales para acceder al sistema.</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Correo Corporativo</label>
+          <input type="email" id="email" class="form-control" placeholder="nombre@empresa.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Iniciar Sesión</button>
+
+        <div id="loginMsg"></div>
+      </form>
+
+      <div style="text-align: center; margin-top: 20px;">
+       
+      </div>
+    </div>
+
+    
+  </div>
+
+  <div class="image-section">
+    <div class="image-overlay">
+      <div class="overlay-content">
+        <p>Control total de herramientas, personal e inventario en una sola plataforma unificada.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="js/login.js"></script>
+
+</body>
+</html>

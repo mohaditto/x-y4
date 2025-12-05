@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Capataz</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --primary-color: #2563eb;
+      --sidebar-bg: #0f172a; /* Mismo estilo oscuro que Admin/Trabajador */
+      --bg-body: #f1f5f9;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-body);
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      overflow-y: auto;
+      
+    }
+
+    /* --- NAVEGACIÓN (CSS PURO - NO JS REQUERIDO) --- */
+    input[name="tab"] { display: none; }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      height: 100vh;
+    }
+
+    /* --- SIDEBAR --- */
+    .sidebar {
+      background-color: var(--sidebar-bg);
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 40px;
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-links { display: flex; flex-direction: column; gap: 8px; }
+
+    .nav-links label {
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .nav-links label:hover { background-color: rgba(255,255,255,0.05); color: white; }
+
+    /* Lógica de Activación Visual del Menú */
+    #tab1:checked ~ .dashboard-layout .sidebar label[for="tab1"],
+    #tab2:checked ~ .dashboard-layout .sidebar label[for="tab2"],
+    #tab3:checked ~ .dashboard-layout .sidebar label[for="tab3"],
+    #tab4:checked ~ .dashboard-layout .sidebar label[for="tab4"] {
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* --- CONTENIDO PRINCIPAL --- */
+    .main-content {
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    /* Mostrar/Ocultar Secciones */
+    .view-section { display: none; animation: fadeIn 0.3s ease; }
+
+    #tab1:checked ~ .dashboard-layout .main-content #content1,
+    #tab2:checked ~ .dashboard-layout .main-content #content2,
+    #tab3:checked ~ .dashboard-layout .main-content #content3,
+    #tab4:checked ~ .dashboard-layout .main-content #contentDevolucion {
+      display: block;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- ESTILOS DE TARJETAS Y UI --- */
+    .card-custom {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      border: 1px solid #e2e8f0;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+
+    h2, h3, h4 { font-weight: 700; color: #1e293b; margin-bottom: 20px; }
+    h5 { color: #64748b; font-weight: 600; margin-top: 10px; margin-bottom: 15px; }
+
+    /* Tablas */
+    .table-custom thead th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 12px;
+    }
+    .table-custom td { padding: 12px; vertical-align: middle; }
+
+    /* Responsive */
+    @media(max-width: 768px) {
+      .dashboard-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main-content { padding: 15px; }
+    }
+    
+  </style>
+</head>
+<body>
+
+  <input type="radio" name="tab" id="tab1" checked>
+  <input type="radio" name="tab" id="tab2">
+  <input type="radio" name="tab" id="tab3">
+  <input type="radio" name="tab" id="tab4">
+
+  <div class="dashboard-layout">
+    
+    <aside class="sidebar">
+      <a href="#" class="brand">
+        <i class="fa-solid fa-helmet-un"></i> Portal Capataz
+      </a>
+      
+      <nav class="nav-links">
+        <label for="tab1"><i class="fa-solid fa-clipboard-user"></i> Asistencia</label>
+        <label for="tab2"><i class="fa-solid fa-toolbox"></i> Herramientas</label>
+        <label for="tab3"><i class="fa-solid fa-clock-rotate-left"></i> Historial</label>
+        <label for="tab4"><i class="fa-solid fa-box-open"></i> Devolución</label>
+      </nav>
+
+      <div style="margin-top: auto;">
+        <button id="btn-logout" class="btn btn-danger w-100 btn-sm">
+          <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+
+      <section id="content1" class="view-section">
+        <h2>Registro de Jornada</h2>
+        
+        <div class="card-custom">
+          <h5 class="mb-3 text-primary">Control de Horario</h5>
+          <form onsubmit="return false;"> <div class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <label class="form-label small text-muted">Fecha y Hora</label>
+                <input class="form-control" type="datetime-local" id="asistencia" name="asistencia">
+              </div>
+              <div class="col-md-8">
+                <div class="d-flex gap-2">
+                  <button id="btnRegistrar" class="btn btn-primary flex-grow-1"><i class="fa-solid fa-check"></i> Entrada</button>
+                  <button id="btnSalida" class="btn btn-secondary flex-grow-1" disabled><i class="fa-solid fa-person-walking-arrow-right"></i> Salida</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="card-custom">
+          <h5>Mi Historial de Asistencia</h5>
+          <div class="table-responsive">
+            <table id="tablaAsistencia" class="table table-hover table-custom w-100">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Hora Entrada</th>
+                  <th>Hora Salida</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="content2" class="view-section">
+        <h3>Gestión de Herramientas</h3>
+
+        <div id="alertaDañadas" class="alert alert-danger d-none align-items-start shadow-sm" style="display: none !important;">
+          <div class="d-flex w-100 justify-content-between">
+             <div>
+               <strong><i class="fa-solid fa-triangle-exclamation"></i> Atención:</strong> Hay herramientas dañadas o en mantenimiento.
+             </div>
+             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+          <div id="listaDañadas" class="mt-2 border-top pt-2" style="max-height: 150px; overflow-y: auto;"></div>
+        </div>
+
+        <div class="card-custom">
+          <div class="row g-2 align-items-center mb-4 bg-light p-3 rounded">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input class="form-control border-start-0" type="search" id="buscaHerramienta" placeholder="Buscar herramienta...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <button id="btnBuscar" class="btn btn-outline-primary w-100">Buscar</button>
+            </div>
+            <div class="col-md-3">
+              <button id="btnActualizar" class="btn btn-outline-secondary w-100"><i class="fa-solid fa-rotate"></i> Refrescar</button>
+            </div>
+          </div>
+
+          <div class="border rounded p-3 mb-4 bg-white">
+            <h5 class="text-primary mb-3"><i class="fa-solid fa-hand-holding-hand"></i> Asignar Herramienta</h5>
+            <div id="asignacion" class="row g-2 align-items-end">
+              <div class="col-md-8">
+                <label class="form-label small text-muted">Seleccionar Trabajador</label>
+                <select id="trabajadorSelect" class="form-select">
+                  <option value="">Seleccione un trabajador...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <button id="btnPrestar" class="btn btn-success w-100">Confirmar Préstamo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-custom">
+          <h5>Inventario Disponible</h5>
+          <div class="table-responsive">
+            <table id="tablaHerramientas" class="table table-hover table-custom w-100">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="content3" class="view-section">
+        <h3>Historial de Préstamos</h3>
+
+        <div class="card-custom">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-9">
+              <div class="input-group">
+                 <span class="input-group-text bg-white"><i class="fa-solid fa-filter"></i></span>
+                 <input class="form-control border-start-0" type="text" id="buscarHistorial" placeholder="Filtrar por Trabajador o Herramienta...">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <button id="btnBuscarHistorial" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-custom">
+          <div class="table-responsive">
+            <table id="tablaHistorial" class="table table-hover table-custom w-100">
+              <thead>
+                <tr>
+                  <th>Trabajador</th>
+                  <th>Herramienta</th>
+                  <th>Fecha Préstamo</th>
+                  <th>Fecha Devolución</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="contentDevolucion" class="view-section">
+        <h3>Devolución de Herramientas</h3>
+
+        <div class="card-custom">
+          <div class="alert alert-info d-flex align-items-center gap-2">
+             <i class="fa-solid fa-circle-info"></i>
+             <span>Marque las casillas de las herramientas que están siendo devueltas.</span>
+          </div>
+          
+          <div class="table-responsive mb-3">
+            <table id="tablaDevolucion" class="table table-hover table-custom w-100">
+              <thead>
+                <tr>
+                  <th>Herramienta</th>
+                  <th>Trabajador</th>
+                   </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="text-end border-top pt-3">
+            <button id="btnDevolver" class="btn btn-success px-4"><i class="fa-solid fa-check-double"></i> Registrar Devolución</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="modalEstado" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(4px);">
+    <div style="background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 550px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out;">
+      <h3 style="margin: 0 0 10px 0; color: #1e293b; text-align: center;">Actualizar Estado</h3>
+      <p id="modalHerramientaNombre" style="font-weight: 600; margin: 0 0 25px 0; text-align: center; color: #64748b; font-size: 1.1rem;"></p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px;">
+        <label style="display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.2s; background: #f8fafc; text-align: center;">
+          <input type="radio" name="nuevoEstado" value="DISPONIBLE" style="margin-bottom: 8px; accent-color: #10b981;">
+          <span style="color: #10b981; font-weight: 700; font-size: 0.9rem;">DISPONIBLE</span>
+        </label>
+
+        <label style="display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.2s; background: #f8fafc; text-align: center;">
+          <input type="radio" name="nuevoEstado" value="NO_DISPONIBLE" style="margin-bottom: 8px; accent-color: #f59e0b;">
+          <span style="color: #f59e0b; font-weight: 700; font-size: 0.9rem;">EN USO</span>
+        </label>
+
+        <label style="display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.2s; background: #f8fafc; text-align: center;">
+          <input type="radio" name="nuevoEstado" value="MANTENCION" style="margin-bottom: 8px; accent-color: #3b82f6;">
+          <span style="color: #3b82f6; font-weight: 700; font-size: 0.9rem;">MANTENCIÓN</span>
+        </label>
+
+        <label style="display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.2s; background: #f8fafc; text-align: center;">
+          <input type="radio" name="nuevoEstado" value="DAÑADA" style="margin-bottom: 8px; accent-color: #ef4444;">
+          <span style="color: #ef4444; font-weight: 700; font-size: 0.9rem;">DAÑADA</span>
+        </label>
+
+        <label style="display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.2s; background: #f8fafc; text-align: center; grid-column: 1 / -1;">
+          <input type="radio" name="nuevoEstado" value="BAJA" style="margin-bottom: 8px; accent-color: #9333ea;">
+          <span style="color: #9333ea; font-weight: 700; font-size: 0.9rem;">BAJA (Descartar)</span>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+        <button id="btnCancelarEstado" class="btn btn-light border">Cancelar</button>
+        <button id="btnConfirmarEstado" class="btn btn-primary px-4">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    /* Estilos hover para el modal */
+    #modalEstado label:hover { background: white; border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
+  </style>
+
+  <script src="js/capataz.js"></script>
+  <script src="js/herramienta_capataz.js"></script>
+  <script src="js/historial_capataz.js"></script>
+  <script src="js/devolucion_capataz.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  
+  <script>
+    document.getElementById('btn-logout')?.addEventListener('click', () => {
+      localStorage.removeItem('jwt');
+      location.href = '/index.html';
+    });
+  </script>
+</body>
+</html>

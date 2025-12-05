@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal del Trabajador</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --primary-color: #2563eb;
+      --sidebar-bg: #0f172a;
+      
+      --bg-body: #f1f5f9;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-body);
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --- SISTEMA DE NAVEGACIÓN (CSS PURO) --- */
+    input[name="nav-tab"] {
+      display: none;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      height: 100vh;
+    }
+
+    /* --- SIDEBAR --- */
+    .sidebar {
+      background-color: var(--sidebar-bg);
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-links label {
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-links label:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    /* Estado Activo en Sidebar */
+    #tab-asist:checked~.dashboard-layout .sidebar label[for="tab-asist"],
+    #tab-tools:checked~.dashboard-layout .sidebar label[for="tab-tools"] {
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* --- CONTENIDO PRINCIPAL --- */
+    .main-content {
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    /* Mostrar/Ocultar Secciones */
+    .view-section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    #tab-asist:checked~.dashboard-layout .main-content #view-asistencia,
+    #tab-tools:checked~.dashboard-layout .main-content #view-herramientas {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* --- TARJETAS Y ELEMENTOS --- */
+    .card-custom {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      border: 1px solid #e2e8f0;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      color: #64748b;
+      margin-bottom: 25px;
+    }
+
+    /* Botones */
+    .btn-action {
+      padding: 10px 20px;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .btn-primary-custom {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+    }
+
+    .btn-primary-custom:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary-custom {
+      background: #64748b;
+      color: white;
+      border: none;
+    }
+
+    .btn-secondary-custom:hover:not(:disabled) {
+      background: #475569;
+    }
+
+    .btn-secondary-custom:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Tablas */
+    .table-custom thead th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 12px;
+    }
+
+    .table-custom td {
+      padding: 12px;
+      vertical-align: middle;
+      color: #334155;
+    }
+
+    /* Responsive */
+    @media(max-width: 768px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      /* En móvil ocultamos sidebar por ahora */
+      .main-content {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <input type="radio" name="nav-tab" id="tab-asist" checked>
+  <input type="radio" name="nav-tab" id="tab-tools">
+
+  <div class="dashboard-layout">
+
+    <aside class="sidebar">
+      <a href="#" class="brand">
+        <i class="fa-solid fa-helmet-safety"></i> Portal Trabajador
+      </a>
+
+      <nav class="nav-links">
+        <label for="tab-asist">
+          <i class="fa-regular fa-clock"></i> Mi Asistencia
+        </label>
+        <label for="tab-tools">
+          <i class="fa-solid fa-screwdriver-wrench"></i> Mis Herramientas
+        </label>
+      </nav>
+
+      <div style="margin-top: auto;">
+        <div class="d-flex align-items-center gap-2 mb-3 text-white opacity-50 px-2">
+          <small><i class="fa-solid fa-user"></i> Sesión Activa</small>
+        </div>
+        <button id="btn-logout" class="btn btn-danger w-100 btn-sm">
+          <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+
+      <section id="view-asistencia" class="view-section">
+        <h2>Registro de Jornada</h2>
+        <p class="subtitle">Gestiona tus entradas y salidas diarias.</p>
+
+        <div class="row">
+          <div class="col-lg-4 mb-4">
+            <div class="card-custom h-100 border-primary border-top-0 border-end-0 border-bottom-0 border-start-4">
+              <h5 class="mb-4 text-primary"><i class="fa-solid fa-fingerprint"></i> Marcar Asistencia</h5>
+
+              <div class="mb-3">
+                <label class="form-label text-muted small">Fecha y Hora</label>
+                <input type="datetime-local" id="asistencia" name="asistenciaTrabajador" class="form-control">
+              </div>
+
+              <div class="d-grid gap-2">
+                <button id="btnRegistrar" class="btn-action btn-primary-custom">
+                  <i class="fa-solid fa-check"></i> Registrar Entrada
+                </button>
+                <button id="btnSalida" class="btn-action btn-secondary-custom" disabled>
+                  <i class="fa-solid fa-person-walking-arrow-right"></i> Registrar Salida
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="card-custom">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="m-0">Historial Reciente</h5>
+                <span class="badge bg-light text-dark border">Ultimos 7 días</span>
+              </div>
+
+              <div class="table-responsive">
+                <table id="tablaAsistencia" class="table table-hover table-custom w-100">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Hora Entrada</th>
+                      <th>Hora Salida</th>
+                      
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-herramientas" class="view-section">
+        <h2>Mis Herramientas</h2>
+        <p class="subtitle">Listado de herramientas asignadas a tu cargo.</p>
+
+        <div class="card-custom">
+          <div class="alert alert-info d-flex align-items-center gap-3">
+            <i class="fa-solid fa-circle-info fa-lg"></i>
+            <div>
+              <strong>Información:</strong> Aquí aparecerán las herramientas que el capataz te asigne.
+            </div>
+          </div>
+
+          <div class="table-responsive mt-4">
+            <table id="tbl-mis-herramientas" class="table table-hover table-custom w-100">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Herramienta</th>
+                  <th>Fecha Asignación</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">
+                    No tienes más herramientas asignadas.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/trabajador.js"></script>
+
+  <script>
+    // Script de Logout original mantenido
+    document.getElementById('btn-logout')?.addEventListener('click', () => {
+      localStorage.removeItem('jwt');
+      location.href = '/index.html';
+    });
+  </script>
+</body>
+
+</html>

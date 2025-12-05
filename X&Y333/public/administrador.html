@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Área Administrador</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css"/>
+  <link rel="stylesheet" href="css/styless.css" />
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --primary-color: #2563eb; 
+      --sidebar-bg: #0f172a; /* Azul muy oscuro casi negro (Profesional) */
+      --bg-body: #f1f5f9;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-body);
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* --- Lógica de Navegación (CRUCIAL: Mantiene tu lógica de Radio Buttons) --- */
+    input[name="tab"], input[name="subtab-tools"], input[name="subtab-rep"] {
+      display: none; /* Ocultos pero funcionales */
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      height: 100vh;
+    }
+    
+
+    /* SIDEBAR */
+    .sidebar {
+      background-color: var(--sidebar-bg);
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 40px;
+      padding-left: 10px;
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-labels { display: flex; flex-direction: column; gap: 8px; }
+
+    .nav-labels label {
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .nav-labels label:hover { background-color: rgba(255,255,255,0.05); color: white; }
+
+    /* Mantiene la conexión ID -> Label visual */
+    #tab1:checked ~ .dashboard-layout .sidebar label[for="tab1"],
+    #tab2:checked ~ .dashboard-layout .sidebar label[for="tab2"],
+    #tab3:checked ~ .dashboard-layout .sidebar label[for="tab3"] {
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    /* Lógica de visualización de paneles (Igual que tu CSS original) */
+    .section-content { display: none; animation: fadeIn 0.3s ease; }
+
+    #tab1:checked ~ .dashboard-layout .main-content #content1,
+    #tab2:checked ~ .dashboard-layout .main-content #content2,
+    #tab3:checked ~ .dashboard-layout .main-content #content3 {
+      display: block;
+    }
+
+    /* Subtabs Logic */
+    #st1:checked ~ .subtab-panels #sp1,
+    #st2:checked ~ .subtab-panels #sp2,
+    #st3:checked ~ .subtab-panels #sp3,
+    #st4:checked ~ .subtab-panels #sp4,
+    #rp1:checked ~ .subtab-panels #rp-1,
+    #rp2:checked ~ .subtab-panels #rp-2,
+    #rp3:checked ~ .subtab-panels #rp-3 { display: block; }
+
+    /* Highlight subtabs */
+    #st1:checked ~ * label[for="st1"], #st2:checked ~ * label[for="st2"], 
+    #st3:checked ~ * label[for="st3"], #st4:checked ~ * label[for="st4"],
+    #rp1:checked ~ * label[for="rp1"], #rp2:checked ~ * label[for="rp2"],
+    #rp3:checked ~ * label[for="rp3"] {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .subpanel { display: none; animation: fadeIn 0.3s ease; padding-top: 20px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ESTILOS DE TARJETAS Y COMPONENTES */
+    .card-custom {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      border: 1px solid #e2e8f0;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+
+    h2 { font-weight: 700; color: #1e293b; margin-bottom: 25px; }
+    
+    /* KPIs */
+    .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .kpi-card { background: white; padding: 20px; border-radius: 12px; border-left: 4px solid var(--primary-color); box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+    .kpi-val { font-size: 2rem; font-weight: 700; color: #1e293b; }
+    
+    /* Estilos Píldora para Submenús */
+    .subtab-nav { background: white; padding: 5px; border-radius: 8px; display: inline-flex; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .subtab-nav label { padding: 8px 16px; border-radius: 6px; cursor: pointer; color: #64748b; font-weight: 500; transition: 0.2s; border: 1px solid transparent; }
+    .subtab-nav label:hover { background: #f8fafc; color: var(--primary-color); }
+
+    /* Tablas */
+    table.dataTable thead th { background-color: #f8fafc !important; color: #475569 !important; }
+    
+    /* Responsive */
+    @media(max-width: 768px){
+        .dashboard-layout { grid-template-columns: 1fr; }
+        .sidebar { display: none; } /* En móvil idealmente poner botón toggle */
+    }
+  </style>
+</head>
+<body>
+
+  <input type="radio" name="tab" id="tab1" checked>
+  <input type="radio" name="tab" id="tab2">
+  <input type="radio" name="tab" id="tab3">
+
+  <div class="dashboard-layout">
+    
+    <aside class="sidebar">
+      <a href="#" class="brand"><i class="fa-solid fa-layer-group"></i> AdminPanel</a>
+      <nav class="nav-labels">
+        <label for="tab1"><i class="fa-solid fa-users"></i> Usuarios</label>
+        <label for="tab2"><i class="fa-solid fa-toolbox"></i> Herramientas</label>
+        <label for="tab3"><i class="fa-solid fa-chart-simple"></i> Reportes</label>
+      </nav>
+      <div style="margin-top: auto;">
+        <button id="btn-logout" class="btn btn-danger w-100 btn-sm">
+          <i class="fa-solid fa-power-off"></i> Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      
+      <section id="content1" class="section-content">
+        <h2>Gestión de Usuarios</h2>
+        
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="card-custom">
+              <h5 class="mb-3">Nuevo Usuario</h5>
+              <form id="frm-usuario" onsubmit="return false;">
+                <div class="mb-3">
+                  <label class="form-label">Usuario</label>
+                  <input type="text" id="nuevoUsuario" class="form-control" placeholder="Nombre de usuario">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Correo</label>
+                  <input type="email" id="correo" class="form-control" placeholder="ejemplo@correo.com">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Contraseña</label>
+                  <input type="password" id="pass" class="form-control" placeholder="******">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Rol</label>
+                  <select id="rol_id" class="form-select"></select>
+                </div>
+                <div class="form-check mb-3">
+                  <input type="checkbox" id="u_activo" class="form-check-input" checked>
+                  <label class="form-check-label" for="u_activo">Usuario Activo</label>
+                </div>
+                <div class="d-grid gap-2">
+                  <button type="button" id="btn-crear-usuario" class="btn btn-primary" disabled>Registrar Usuario</button>
+                  <button type="reset" class="btn btn-light">Limpiar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="col-lg-8">
+            <div class="card-custom">
+              <h5 class="mb-3">Listado de Usuarios</h5>
+              <div class="table-responsive">
+                <table id="tbl-usuarios" class="table table-hover w-100">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Rol</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="content2" class="section-content">
+        <h2>Herramientas</h2>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <small class="text-muted">Disponibles</small>
+            <div class="kpi-val text-success" id="kpi-disponibles">0</div>
+          </div>
+          <div class="kpi-card" style="border-color: #f59e0b;">
+            <small class="text-muted">En Uso</small>
+            <div class="kpi-val text-warning" id="kpi-uso">0</div>
+          </div>
+          <div class="kpi-card" style="border-color: #ef4444;">
+            <small class="text-muted">En Mantención</small>
+            <div class="kpi-val text-danger" id="kpi-mant">0</div>
+          </div>
+        </div>
+
+        <input type="radio" name="subtab-tools" id="st1" checked>
+        <input type="radio" name="subtab-tools" id="st2">
+        
+
+        <div class="subtab-nav mb-3">
+          <label for="st1">Crear</label>
+          <label for="st2">Listar</label>
+          
+        </div>
+
+        <div class="subtab-panels">
+          <div class="subpanel" id="sp1">
+             <div class="card-custom" style="max-width: 800px;">
+               <form id="frm-nueva">
+                 <div class="row">
+                   <div class="col-md-6 mb-3">
+                     <label class="form-label">Categoría</label>
+                     <select id="categoria_id" name="categoria_id" class="form-select" required></select>
+                   </div>
+                   <div class="col-md-6 mb-3">
+                     <label class="form-label">Código</label>
+                     <input type="text" id="codigo" name="codigo" class="form-control" placeholder="Ej: TL-DRL-001" required>
+                   </div>
+                   <div class="col-12 mb-3">
+                     <label class="form-label">Nombre</label>
+                     <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej: Taladro" required>
+                   </div>
+                   <div class="col-12 mb-3">
+                     <label class="form-label">Descripción</label>
+                     <textarea id="descripcion" name="descripcion" class="form-control"></textarea>
+                   </div>
+                   <div class="col-md-6 mb-3">
+                     <label class="form-label">Valor Estimado</label>
+                     <input type="number" step="0.01" id="valor_estimado" name="valor_estimado" class="form-control">
+                   </div>
+                 </div>
+                 <button type="submit" class="btn btn-primary">Guardar</button>
+                 <button type="reset" class="btn btn-secondary">Limpiar</button>
+               </form>
+             </div>
+          </div>
+
+          <div class="subpanel" id="sp2">
+            <div class="card-custom">
+              <div class="row g-2 mb-4 align-items-end bg-light p-3 rounded">
+                <div class="col-md-4">
+                  <label class="small text-muted">Buscar</label>
+                  <input type="search" id="f_q" class="form-control" placeholder="Código o Nombre">
+                </div>
+                <div class="col-md-3">
+                  <label class="small text-muted">Estado</label>
+                  <select id="f_estado" class="form-select">
+                    <option value="">(Todos)</option>
+                    <option value="DISPONIBLE">DISPONIBLE</option>
+                    <option value="NO_DISPONIBLE">NO_DISPONIBLE</option>
+                    <option value="MANTENCION">MANTENCION</option>
+                    <option value="DAÑADA">DAÑADA</option>
+                    <option value="BAJA">BAJA</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="small text-muted">Categoría</label>
+                  <select id="f_categoria" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                  <button type="button" id="btn-filtrar" class="btn btn-primary w-100">Aplicar</button>
+                </div>
+              </div>
+              
+              <div class="table-responsive">
+                <table id="tbl-herr" class="table table-hover w-100">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Nombre</th>
+                      <th>Categoría</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div class="subpanel" id="sp3"></div>
+          <div class="subpanel" id="sp4"></div>
+        </div>
+      </section>
+
+      <section id="content3" class="section-content">
+        <h2>Reportes</h2>
+        
+        <input type="radio" name="subtab-rep" id="rp1" checked>
+        <input type="radio" name="subtab-rep" id="rp2">
+        <input type="radio" name="subtab-rep" id="rp3">
+
+        <div class="subtab-nav mb-3">
+          <label for="rp1">Asistencias</label>
+          <label for="rp2">Herramientas</label>
+          <label for="rp3">Consolidado</label>
+        </div>
+
+        <div class="subtab-panels">
+          <div class="subpanel" id="rp-1">
+            <div class="card-custom">
+               <div class="row g-3 align-items-end mb-3">
+                 <div class="col-md-3"><label>Desde</label><input type="date" id="r_desde" class="form-control"></div>
+                 <div class="col-md-3"><label>Hasta</label><input type="date" id="r_hasta" class="form-control"></div>
+                 <div class="col-md-3"><label>Usuario</label><input type="text" id="r_usuario" class="form-control" placeholder="Opcional"></div>
+                 <div class="col-md-3"><button type="button" id="btn-rep-asist" class="btn btn-primary w-100">Generar</button></div>
+               </div>
+               <table id="tbl-rep-asist" class="table w-100">
+                 <thead><tr><th>Fecha</th><th>Usuario</th><th>Entrada</th><th>Salida</th><th>Horas</th></tr></thead>
+                 <tbody></tbody>
+               </table>
+            </div>
+          </div>
+
+          <div class="subpanel" id="rp-2">
+            <div class="card-custom">
+               <div class="row g-3 align-items-end mb-3">
+                 <div class="col-md-3"><label>Mes</label><input type="month" id="r_mes" class="form-control"></div>
+                 <div class="col-md-3">
+                   <label>Estado</label>
+                   <select id="r_estado" class="form-select">
+                     <option value="">(Todos)</option>
+                     <option value="DISPONIBLE">DISPONIBLE</option>
+                     <option value="NO_DISPONIBLE">NO_DISPONIBLE</option>
+                     <option value="MANTENCION">MANTENCION</option>
+                     <option value="DAÑADA">DAÑADA</option>
+                     <option value="BAJA">BAJA</option>
+                   </select>
+                 </div>
+                 <div class="col-md-3"><label>Categoría ID</label><input type="number" id="r_categoria" class="form-control" placeholder="Opcional"></div>
+                 <div class="col-md-3"><button type="button" id="btn-rep-herr" class="btn btn-primary w-100">Generar</button></div>
+               </div>
+               <table id="tbl-rep-herr" class="table w-100">
+                 <thead><tr><th>Herramienta</th><th>Uso (veces)</th><th>Horas uso</th><th>Incidencias</th></tr></thead>
+                 <tbody></tbody>
+               </table>
+            </div>
+          </div>
+
+          <div class="subpanel" id="rp-3">
+            <div class="card-custom">
+               <div class="row g-3 align-items-end mb-3">
+                 <div class="col-md-3">
+                    <label>Periodo</label>
+                    <select id="r_periodo" class="form-select">
+                      <option value="semanal">Semanal</option>
+                      <option value="mensual" selected>Mensual</option>
+                      <option value="trimestral">Trimestral</option>
+                    </select>
+                 </div>
+                 <div class="col-md-3">
+                    <label>Área</label>
+                    <select id="r_area" class="form-select">
+                      <option value="">Todas</option>
+                      <option value="capataz">Capataz</option>
+                      <option value="operaciones">Operaciones</option>
+                      <option value="administracion">Administración</option>
+                    </select>
+                 </div>
+                 <div class="col-md-3">
+                    <label>Formato</label>
+                    <select id="r_formato" class="form-select">
+                      <option value="tabla">Tabla</option>
+                      <option value="resumen">Resumen</option>
+                    </select>
+                 </div>
+                 <div class="col-md-3"><button type="button" id="btn-rep-cons" class="btn btn-primary w-100">Generar</button></div>
+               </div>
+               <table id="tbl-rep-cons" class="table w-100">
+                 <thead><tr><th>Métrica</th><th>Valor</th><th>Observación</th></tr></thead>
+                 <tbody></tbody>
+               </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modalEstadoAdmin" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; backdrop-filter: blur(5px); align-items: center; justify-content: center; flex-direction: column;">
+    <div style="background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideDown 0.3s ease-out;">
+      <h3 style="margin: 0 0 15px 0; color: #1e293b;">Cambiar Estado</h3>
+      <p id="modalEstadoAdminNombre" style="font-weight: 500; color: #64748b; margin-bottom: 25px;"></p>
+      
+      <div style="display: grid; gap: 10px;">
+        <label style="padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; display: flex; gap: 10px; align-items: center;">
+          <input type="radio" name="nuevoEstadoAdmin" value="DISPONIBLE"> <span style="color:#10b981; font-weight:700;">● DISPONIBLE</span>
+        </label>
+        <label style="padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; display: flex; gap: 10px; align-items: center;">
+          <input type="radio" name="nuevoEstadoAdmin" value="NO_DISPONIBLE"> <span style="color:#f59e0b; font-weight:700;">● NO DISPONIBLE</span>
+        </label>
+        <label style="padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; display: flex; gap: 10px; align-items: center;">
+          <input type="radio" name="nuevoEstadoAdmin" value="MANTENCION"> <span style="color:#2563eb; font-weight:700;">● MANTENCIÓN</span>
+        </label>
+        <label style="padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; display: flex; gap: 10px; align-items: center;">
+          <input type="radio" name="nuevoEstadoAdmin" value="DAÑADA"> <span style="color:#ef4444; font-weight:700;">● DAÑADA</span>
+        </label>
+         <label style="padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; display: flex; gap: 10px; align-items: center;">
+          <input type="radio" name="nuevoEstadoAdmin" value="BAJA"> <span style="color:#9333ea; font-weight:700;">● BAJA</span>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+        <button id="btnCancelarEstadoAdmin" class="btn btn-light">Cancelar</button>
+        <button id="btnConfirmarEstadoAdmin" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="formEditarUsuario">
+        <div class="modal-body">
+
+          <input type="hidden" id="edit_user_id">
+
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" id="edit_user_nombre" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Correo</label>
+            <input type="email" id="edit_user_email" class="form-control">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Rol</label>
+            <select id="edit_user_rol" class="form-select"></select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select id="edit_user_activo" class="form-select">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" type="submit">Guardar Cambios</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+  
+  <style>@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }</style>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  
+  <script src="/js/admin.js"></script>
+  <script src="/js/admin_usuarios.js"></script>
+
+</body>
+</html>

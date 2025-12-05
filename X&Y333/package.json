@@ -1,4 +1,7 @@
 {
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "server.js",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -6,5 +9,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.2"
+  },
+  "scripts": {
+    "start": "node server.js"
   }
 }
